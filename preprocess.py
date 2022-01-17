@@ -14,17 +14,17 @@ from torchvision.io import read_image, write_jpeg
 
 
 # display images
-# plt.rcParams["savefig.bbox"] = 'tight'
-# torch.manual_seed(1)
-#
-#
-# def show(imgs):
-#     fix, axs = plt.subplots(ncols=len(imgs), squeeze=False)
-#     for i, img in enumerate(imgs):
-#         img = T.ToPILImage()(img.to('cpu'))
-#         axs[0, i].imshow(np.asarray(img))
-#         axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
-#     plt.show()
+plt.rcParams["savefig.bbox"] = 'tight'
+torch.manual_seed(1)
+
+
+def show(imgs):
+    fix, axs = plt.subplots(ncols=len(imgs), squeeze=False)
+    for i, img in enumerate(imgs):
+        img = T.ToPILImage()(img.to('cpu'))
+        axs[0, i].imshow(np.asarray(img))
+        axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
+    plt.show()
 
 
 # transformation: first resize the smaller dimension to 256, then crop the center 256*256 square
@@ -46,8 +46,13 @@ if __name__ == '__main__':
         filename = img_names[i]
         try:
             img = read_image(input_path + '/' + filename)
+            # only keep images with 3 channels
+            if img.shape[0] != 3:
+                continue
+
             # perform resizing and cropping
             t_img = transforms(img)
+
             # save the output jpeg file to a different directory with the same name
             write_jpeg(t_img, output_path + '/' + filename)
 
