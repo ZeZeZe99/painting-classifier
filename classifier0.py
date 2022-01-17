@@ -25,6 +25,7 @@ def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
+        X, y = X.to(device), y.to(device)
         # Compute prediction error
         pred = model(X)
         loss = loss_fn(pred, y)
@@ -36,7 +37,7 @@ def train(dataloader, model, loss_fn, optimizer):
 
         if batch % 2 == 0:
             loss, current = loss.item(), batch * len(X)
-            now = time.time() - start
+            now = round(time.time() - start)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
 
 def test(dataloader, model, loss_fn):
@@ -46,6 +47,7 @@ def test(dataloader, model, loss_fn):
 
     with torch.no_grad():
         for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
@@ -59,7 +61,11 @@ if __name__ == '__main__':
     """
     Use a CNN model
     """
-    model = CNN0(output_dim=136)
+    # Get cpu or gpu device for training.
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using {device} device")
+
+    model = CNN0(output_dim=136).to(device)
     print(model)
 
     """
@@ -101,3 +107,9 @@ if __name__ == '__main__':
         train(train_dataloader, model, loss_fn, optimizer)
         test(test_dataloader, model, loss_fn)
     print("Done!")
+
+    """
+    Save model
+    """
+    torch.save(model.state_dict(), "model.pth")
+    print("Saved PyTorch Model State to model.pth")
