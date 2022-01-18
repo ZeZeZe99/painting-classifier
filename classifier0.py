@@ -7,13 +7,14 @@ from torch.utils.data import DataLoader, random_split
 
 from painting import Painting
 from cnn0 import CNN0
+from cnn1 import CNN1
 import time
 
 """
 Define hyper-parameters
 """
 learning_rate = 1e-3
-batch_size = 10
+batch_size = 50
 epochs = 1
 
 
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = CNN0(output_dim=136).to(device)
+    model = CNN1(output_dim=14).to(device)
     print(model)
 
     """
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     """
     Load datasets
     """
-    data = Painting('train_info.csv', 'preprocessed_1', set_index=1)
+    data = Painting('train_info.csv', 'preprocessed_1', min_paint=200, set_index=1)
     # print(train_data.__len__())
 
     """
