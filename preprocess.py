@@ -4,6 +4,8 @@ This program is used to preprocess images to 256*256 jpg format.
 
 import os
 import sys
+
+import PIL
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -29,6 +31,7 @@ def show(imgs):
 
 # transformation: first resize the smaller dimension to 256, then crop the center 256*256 square
 transforms = nn.Sequential(
+    # T.ToTensor(),
     T.Resize(256),
     T.CenterCrop(256)
 )
@@ -45,22 +48,29 @@ if __name__ == '__main__':
     for i in range(len(img_names)):
         filename = img_names[i]
         try:
-            img = read_image(input_path + '/' + filename)
+            # read image using torchvision
+            # img = read_image(input_path + '/' + filename)
             # only keep images with 3 channels
-            if img.shape[0] != 3:
+            # if img.shape[0] != 3:
+            #     continue
+
+            # read image using PIL
+            img = PIL.Image.open(input_path + '/' + filename)
+            # only keep images with 3 channels
+            if img.mode != "RGB":
                 continue
+
 
             # perform resizing and cropping
             t_img = transforms(img)
 
             # save the output jpeg file to a different directory with the same name
-            write_jpeg(t_img, output_path + '/' + filename)
+            # using torchvision
+            # write_jpeg(t_img, output_path + '/' + filename)
 
-            # another way to save the jpeg file
-            # t_img = T.ToPILImage()(t_img)
-            # if t_img.mode != 'RGB' and t_img.mode != 'L':
-            #     t_img = t_img.convert("RGB")
-            # t_img.save('processed/' + filename)
+            # using PIL
+            t_img.save(output_path + '/' + filename)
+
         except Exception as e:
             print(filename)
             print(e)

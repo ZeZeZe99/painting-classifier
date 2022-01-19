@@ -73,8 +73,10 @@ class CNN2(nn.Module):
             nn.Linear(8*8*256, 2048),
             nn.ReLU(),
             nn.Linear(2048, 1584),
-            nn.ReLU(),
+            nn.Softmax(1),
             nn.Linear(1584, output_dim)
+
+
         )
 
     def forward(self, x):

@@ -81,3 +81,4 @@ class CNN1(nn.Module):
 
     def forward(self, x):
         return self.network(x)
+

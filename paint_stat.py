@@ -17,7 +17,8 @@ print("---------------------")
 
 file_1 = file[file.filename.str.startswith('1')]
 style_1 = file_1['style'].value_counts()
-print(style_1.shape)
+# print(style_1.shape)
+
 count = 0
 total_paint = 0
 for name, item in style_1.items():
