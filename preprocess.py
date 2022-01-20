@@ -45,6 +45,7 @@ if __name__ == '__main__':
     img_names = os.listdir(input_path)
 
     count = 0
+    success = 0
     for i in range(len(img_names)):
         filename = img_names[i]
         try:
@@ -70,6 +71,10 @@ if __name__ == '__main__':
 
             # using PIL
             t_img.save(output_path + '/' + filename)
+
+            success += 1
+            if success % 100 == 0:
+                print(success)
 
         except Exception as e:
             print(filename)

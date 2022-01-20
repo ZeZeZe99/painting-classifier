@@ -15,7 +15,7 @@ import time
 Define hyper-parameters
 """
 learning_rate = 1e-4
-batch_size = 50
+batch_size = 4
 epochs = 10
 
 
@@ -31,6 +31,10 @@ def train(dataloader, model, loss_fn, optimizer):
         # Compute prediction error
         pred = model(X)
         loss = loss_fn(pred, y)
+        print("X: " + X)
+        print("y: " + y)
+        print("p: " + pred)
+        print("l: " + loss)
 
         # Backpropagation
         optimizer.zero_grad()
