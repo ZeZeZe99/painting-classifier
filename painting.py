@@ -64,6 +64,9 @@ class Painting(Dataset):
         file_exist = self.img_labels.apply(self.file_exist, axis=1)
         self.img_labels = self.img_labels[file_exist]
 
+        print(self.img_labels['style'].value_counts())
+
+
     def __len__(self):
         return len(self.img_labels)
 
