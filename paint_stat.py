@@ -21,8 +21,8 @@ style_1 = file_1['style'].value_counts()
 
 count = 0
 total_paint = 0
-for name, item in style_1.items():
-    if item >= 200:
+for name, item in style.items():
+    if item >= 1000:
         count += 1
         total_paint += item
         print(name, item)
