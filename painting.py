@@ -13,8 +13,8 @@ from torchvision.io import read_image
 
 class Painting(Dataset):
     # class variables
-    style = []
-    genre = []
+    selected_labels = []
+    painting_count = []
 
     """
     Initialize the painting dataset
@@ -27,36 +27,60 @@ class Painting(Dataset):
     :param target_transform
     """
 
-    def __init__(self, annotation_file, img_dir, min_paint=0, max_paint=0, set_index=0, transform=None, target_transform=None):
+    def __init__(self, annotation_file, img_dir, column=3, min_paint=None, max_paint=None, set_index=0,
+                 transform=None, target_transform=None):
         self.img_labels = pd.read_csv(annotation_file)
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
+        self.column = column
 
         # for testing purpose: only need labels for 1 training set
         if set_index != 0:
             self.img_labels = self.img_labels[self.img_labels.filename.str.startswith(str(set_index))]
 
-        # select styles that have at least x paintings, store it as a list
-        if len(Painting.style) == 0:
-            style_count = self.img_labels['style'].value_counts()
-            if min_paint != 0:
-                style_count = style_count[lambda x: x >= min_paint]
-                style_count = style_count[lambda y: y <= max_paint]
-            for name, item in style_count.items():
-                Painting.style.append(name)
-            # print(Painting.style)
-            print(f"Styles selected: {len(Painting.style)}")
+        # use style (column index 3) as label
+        if column == 3:
+            if len(Painting.selected_labels) == 0:
+                # select styles that have specific amount of paintings, store it as a list
+                style_count = self.img_labels['style'].value_counts()
+                if min_paint:
+                    style_count = style_count[lambda x: x >= min_paint]
+                if max_paint:
+                    style_count = style_count[lambda y: y <= max_paint]
+                for name, item in style_count.items():
+                    Painting.selected_labels.append(name)
+                print(f"Styles selected: {len(Painting.selected_labels)}")
 
-        # create the style and genre map, map each string to an integer
-        # if len(Painting.style) == 0:
-        #     Painting.style = self.img_labels['style'].unique().tolist()
-        #     print("Total style: %d" % len(Painting.style))
-        # if len(Painting.genre) == 0:
-        #     Painting.genre = self.img_labels['genre'].unique().tolist()
-        #     print("Total genre: %d" % len(Painting.genre))
+        # use genre (column index 4) as label
+        elif column == 4:
+            if len(Painting.selected_labels) == 0:
+                # select genres that have specific amount of paintings, store it as a list
+                genre_count = self.img_labels['genre'].value_counts()
+                if min_paint:
+                    genre_count = genre_count[lambda x: x >= min_paint]
+                if max_paint:
+                    genre_count = genre_count[lambda y: y <= max_paint]
+                for name, item in genre_count.items():
+                    Painting.selected_labels.append(name)
+                # print(Painting.style)
+                print(f"Styles selected: {len(Painting.selected_labels)}")
 
-        # check if the painting has the selected styles
+        # use artist (column index 1) as label
+        elif column == 1:
+            if len(Painting.selected_labels) == 0:
+                # select artists that have specific amount of paintings, store it as a list
+                artist_count = self.img_labels['artist'].value_counts()
+                if min_paint:
+                    artist_count = artist_count[lambda x: x >= min_paint]
+                if max_paint:
+                    artist_count = artist_count[lambda y: y <= max_paint]
+                for name, item in artist_count.items():
+                    Painting.selected_labels.append(name)
+                print(f"Styles selected: {len(Painting.selected_labels)}")
+
+
+        # check if the label (style/genre/artist) of the painting is selected
         selected = self.img_labels.apply(self.style_selected, axis=1)
         self.img_labels = self.img_labels[selected]
 
@@ -65,7 +89,6 @@ class Painting(Dataset):
         file_exist = self.img_labels.apply(self.file_exist, axis=1)
         self.img_labels = self.img_labels[file_exist]
 
-        print(self.img_labels['style'].value_counts())
 
 
     def __len__(self):
@@ -84,11 +107,8 @@ class Painting(Dataset):
 
         # convert the label from string to integer
         # use style as the label
-        label = self.img_labels.iloc[idx, 3]
-        label = Painting.style.index(label)
-        # use genre as the label
-        # label = self.img_labels.iloc[idx, 4]
-        # label = Painting.genre.index(label)
+        label = self.img_labels.iloc[idx, self.column]
+        label = Painting.selected_labels.index(label)
 
         if self.transform:
             image = self.transform(image)
@@ -113,4 +133,9 @@ class Painting(Dataset):
     """
 
     def style_selected(self, row):
-        return row['style'] in Painting.style
+        if self.column == 3:
+            return row['style'] in Painting.selected_labels
+        elif self.column == 4:
+            return row['genre'] in Painting.selected_labels
+        elif self.column == 1:
+            return row['artist'] in Painting.selected_labels

@@ -94,10 +94,10 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = CNN0(output_dim=14).to(device)
+    model = CNN0(output_dim=3).to(device)
     # model = models.resnet50(pretrained=True).to(device)
     print(model)
-    exit()
+    # exit()
 
     """
     Define loss function and optimizer
@@ -108,12 +108,13 @@ if __name__ == '__main__':
     """
     Load datasets
     """
-    train_transforms = transforms.Compose([
-        transforms.RandomCrop(224)
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        # transforms.RandomCrop(224)
     ])
 
-    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, max_paint=1300,
-                    set_index=1)
+    data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=1000, set_index=1,
+                    transform = transform)
     # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, set_index=0, transform= train_transforms)
     # print(train_data.__len__())
 
