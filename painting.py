@@ -27,7 +27,7 @@ class Painting(Dataset):
     :param target_transform
     """
 
-    def __init__(self, annotation_file, img_dir, min_paint=0, set_index=0, transform=None, target_transform=None):
+    def __init__(self, annotation_file, img_dir, min_paint=0, max_paint=0, set_index=0, transform=None, target_transform=None):
         self.img_labels = pd.read_csv(annotation_file)
         self.img_dir = img_dir
         self.transform = transform
@@ -42,6 +42,7 @@ class Painting(Dataset):
             style_count = self.img_labels['style'].value_counts()
             if min_paint != 0:
                 style_count = style_count[lambda x: x >= min_paint]
+                style_count = style_count[lambda y: y <= max_paint]
             for name, item in style_count.items():
                 Painting.style.append(name)
             # print(Painting.style)

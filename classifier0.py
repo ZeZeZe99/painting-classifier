@@ -18,8 +18,8 @@ import time
 """
 Define hyper-parameters
 """
-learning_rate = 3e-3
-batch_size = 10
+learning_rate = 0.001
+batch_size = 16
 epochs = 100
 
 
@@ -62,8 +62,8 @@ def test(dataloader, model, loss_fn):
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
             # if pred.argmax(1) == y:
-            #     print("pred: ", pred.argmax(1))
-            #     print("y: ", y)
+            print("pred: ", pred.argmax(1))
+            print("y: ", y)
             # print(pred.argmax(1) == y)
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
@@ -88,8 +88,8 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    # model = CNN4(output_dim=14).to(device)
-    model = models.resnet50(pretrained=True).to(device)
+    model = CNN0(output_dim=14).to(device)
+    # model = models.resnet50(pretrained=True).to(device)
     print(model)
 
     """
@@ -104,7 +104,9 @@ if __name__ == '__main__':
     train_transforms = transforms.Compose([
         transforms.RandomCrop(224)
     ])
-    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', min_paint=1000, set_index=0, transform= train_transforms)
+    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, max_paint=1300,
+                    set_index=1)
+    # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, set_index=0, transform= train_transforms)
     # print(train_data.__len__())
 
     """
