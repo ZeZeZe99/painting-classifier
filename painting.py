@@ -79,8 +79,8 @@ class Painting(Dataset):
 
         # use this since latest version of torchvision is not available on M1 Mac
         image = PIL.Image.open(img_path)
-        transform = transforms.ToTensor()
-        image_tensor = transform(image)
+        # transform = transforms.ToTensor()
+        # image_tensor = transform(image)
 
         # convert the label from string to integer
         # use style as the label
@@ -98,7 +98,7 @@ class Painting(Dataset):
         # convert the image tensor to float: RGB are in [0, 1]
         # image = image.float()
 
-        return image_tensor, label
+        return image, label
 
     """
     Check whether the file exists

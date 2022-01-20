@@ -13,10 +13,7 @@ from painting import Painting
 from cnn0 import CNN0
 from cnn5 import CNN5
 
-# Normalization
-train_transform = transforms.Compose([transforms.ToPILImage(),
-                                      transforms.ToTensor(),
-                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
 
 # test_transform = transforms.Compose([transforms.ToPILImage(),
 #                                      transforms.ToTensor(),
@@ -110,29 +107,26 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    """
-    Load datasets
-    """
-    train_transforms = transforms.Compose([
-        transforms.RandomCrop(224)
-    ])
+    # train_transforms = transforms.Compose([
+    #     transforms.RandomCrop(32)
+    # ])
 
-    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, max_paint=1300,
-                    set_index=1, transform=train_transforms)
-    # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, set_index=0, transform= train_transforms)
-    # print(train_data.__len__())
+    # Normalization
+    train_transforms = transforms.Compose([#transforms.RandomCrop(32),
+                                          # transforms.ToPILImage(),
+                                          transforms.ToTensor(),
+                                          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                                          ])
 
-    """
-    Split into training set and testing set
-    """
+    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, max_paint=130000, set_index=1, transform=train_transforms)
+
+    # Split
     train_size = round(data.__len__() * 0.8)
     test_size = data.__len__() - train_size
     train_data, test_data = random_split(data, [train_size, test_size])
     print(len(train_data), len(test_data))
 
-    """
-    Create dataset loaders
-    """
+    # Create dataset loader
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     # valid_loader = DataLoader(dataset=valid_data, batch_size=batch_size, shuffle=False)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
@@ -142,17 +136,13 @@ if __name__ == '__main__':
         print("Shape of y: ", y.dtype, y.shape)
         break
 
-    """
-    Train and test
-    """
+    # Train
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
         train(train_dataloader)
         test(test_dataloader)
     print("Done!")
 
-    """
-    Save model
-    """
+    # Save model
     torch.save(model.state_dict(), "model.pth")
     print("Saved PyTorch Model State to model.pth")
