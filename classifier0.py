@@ -26,30 +26,36 @@ epochs = 100
 """
 Define training and testing functions
 """
-def train(dataloader, model, loss_fn, optimizer):
+def train(dataloader):
     start = time.time()
     size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
+
+        # Compute prediction error
         pred = model(X)
-        # print("pred: ", pred.argmax(1))
-        # print("yred: ", y)
         loss = loss_fn(pred, y)
+
+        # print("Input:   ", X)
+        print("Label:   ", y)
+        # print("Output:  ", pred)
+        print("Predict: ", pred.argmax(1))
+        # print("l: ", loss)
 
         # Backpropagation
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        if batch % 2 == 0:
+        if batch % 50 == 0:
             loss, current = loss.item(), batch * len(X)
             now = round(time.time() - start)
-            # print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
+            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
     print("Training done!")
 
 
-def test(dataloader, model, loss_fn):
+def test(dataloader):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
@@ -91,6 +97,7 @@ if __name__ == '__main__':
     model = CNN0(output_dim=14).to(device)
     # model = models.resnet50(pretrained=True).to(device)
     print(model)
+    exit()
 
     """
     Define loss function and optimizer
@@ -104,6 +111,7 @@ if __name__ == '__main__':
     train_transforms = transforms.Compose([
         transforms.RandomCrop(224)
     ])
+
     data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, max_paint=1300,
                     set_index=1)
     # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, set_index=0, transform= train_transforms)
@@ -133,8 +141,8 @@ if __name__ == '__main__':
     """
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
-        train(train_dataloader, model, loss_fn, optimizer)
-        test(test_dataloader, model, loss_fn)
+        train(train_dataloader)
+        test(test_dataloader)
     print("Done!")
 
     """
