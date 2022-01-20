@@ -37,13 +37,14 @@ class Painting(Dataset):
         if set_index != 0:
             self.img_labels = self.img_labels[self.img_labels.filename.str.startswith(str(set_index))]
 
-        # select styles that have at least 50 paintings, store it as a list
+        # select styles that have at least x paintings, store it as a list
         if len(Painting.style) == 0:
             style_count = self.img_labels['style'].value_counts()
             if min_paint != 0:
                 style_count = style_count[lambda x: x >= min_paint]
             for name, item in style_count.items():
                 Painting.style.append(name)
+            # print(Painting.style)
             print(f"Styles selected: {len(Painting.style)}")
 
         # create the style and genre map, map each string to an integer
