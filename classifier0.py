@@ -1,11 +1,11 @@
-"""
-Class to train the classifier
-"""
+# Classifier
 import torch
 from torch import nn, optim
 from torchvision import transforms, models
 from torch.utils.data import DataLoader, random_split
+from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
+import time
 
 from painting import Painting
 from cnn0 import CNN0
@@ -14,23 +14,45 @@ from cnn2 import CNN2
 from cnn3 import CNN3
 from cnn4 import CNN4
 from cnn5 import CNN5
-import time
+from cnn7 import CNN7
+from cnn8 import CNN8
+from cnn9 import CNN9
+from cnn10 import CNN10
 
-"""
-Define hyper-parameters
-"""
-learning_rate = 0.0001
+# Plot results with matplotlib
+def plot ():
+    plt.figure(2)
+    plt.clf()
+    episode_rewards_plot = torch.tensor(episode_rewards, dtype=torch.float)
+    plt.title('Training...')
+    plt.xlabel('Epoch')
+    plt.ylabel('Rewards')
+    plt.plot(episode_rewards_plot.numpy())
+    plt.plot(average_rewards_plot.numpy())
+    plt.plot(mean_rewards_plot.numpy())
+    # Take x episode averages and plot them too
+    # if len(episode_rewards_plot) >= 100:
+    #     means = episode_rewards_plot.unfold(0, 100, 1).mean(1).view(-1)
+    #     means = torch.cat((torch.zeros(99), means))
+    #     plt.plot(means.numpy())
+    plt.pause(0.001)
+
+# Plot with tensorboard
+writer = SummaryWriter()
+
+# Hyper parameters
+learning_rate = 0.00001
 batch_size = 16
-epochs = 100
+epochs = 10
 
-
-"""
-Define training and testing functions
-"""
-def train(dataloader):
+# Define training function
+def train(dataloader, epoch):
+    # Initialize
     start = time.time()
     size = len(dataloader.dataset)
+
     model.train()
+
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
 
@@ -38,11 +60,8 @@ def train(dataloader):
         pred = model(X)
         loss = loss_fn(pred, y)
 
-        # print("Input:   ", X)
-        # print("Label:   ", y)
-        # print("Output:  ", pred)
-        # print("Predict: ", pred.argmax(1))
-        # print("l: ", loss)
+        # Plot with tensorboard
+        writer.add_scalar("Loss/train", loss, epoch)
 
         # Backpropagation
         optimizer.zero_grad()
@@ -55,13 +74,12 @@ def train(dataloader):
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
     print("Training done!")
 
-
-def test(dataloader):
+# Define testing function
+def test(dataloader, epoch):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
-    test_loss, correct, correctt, total = 0, 0, 0, 0
-    plot = []
+    test_loss, correct,= 0, 0
 
     with torch.no_grad():
         for X, y in dataloader:
@@ -71,59 +89,39 @@ def test(dataloader):
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
     test_loss /= num_batches
-    print(correct, size)
     correct /= size
-
-    print(f"Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
 
 if __name__ == '__main__':
-    """
-    Use a CNN model
-    """
     # Get cpu or gpu device for training.
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = CNN1(output_dim=38).to(device)
-    # model = CNN5().to(device)
+    model = CNN10(output_dim=9).to(device)
     # model = models.resnet18(pretrained=True).to(device)
-    # num_ftrs = model.fc.in_features
-    # model.fc = nn.Linear(num_ftrs, 25).to(device)
     print(model)
-    # exit()
 
-    """
-    Define loss function and optimizer
-    """
+    # Define loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
-    #optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    """
-    Load datasets
-    """
+    # Load datasets
     transform = transforms.Compose([
         transforms.ToTensor(),
-        #transforms.Resize(32) # if resnet50
+        # transforms.Resize(32) # if resnet50
     ])
 
-    # data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=1000, set_index=1,
-    #                 transform = transform)
-    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=1, min_paint=300, set_index=0, transform= transform)
-    # print(train_data.__len__())
+    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=4, min_paint=300, set_index=1, transform=transform)
 
-    """
-    Split into training set and testing set
-    """
+    # Split into training set and testing set
     train_size = round(data.__len__() * 0.8)
     test_size = data.__len__() - train_size
     train_data, test_data = random_split(data, [train_size, test_size])
     print(len(train_data), len(test_data))
 
-    """
-    Create dataset loaders
-    """
+    # Create dataset loaders
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
 
@@ -132,20 +130,21 @@ if __name__ == '__main__':
         print("Shape of y: ", y.dtype, y.shape)
         break
 
-    """
-    Train and test
-    """
+    # Train and test
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
         torch.cuda.empty_cache()
-        train(train_dataloader)
-        test(test_dataloader)
-        torch.save(model.state_dict(), "model.pth")
+        train(train_dataloader, epochs)
+        test(test_dataloader, epochs)
+        writer.flush()
+        # Save model
+        torch.save(model.state_dict(), "/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth")
         print("Saved PyTorch Model State to model.pth")
     print("Done!")
 
-    """
-    Save model
-    """
-    torch.save(model.state_dict(), "model.pth")
+    # Save model
+    torch.save(model.state_dict(), "/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth")
     print("Saved PyTorch Model State to model.pth")
+
+    # Close writer
+    writer.close()

@@ -1,0 +1,17 @@
+model, peak_acc, epoch
+-------------------------------------------------------------
+batch_size = 16
+preprocessed_1, genre > 300, out_dim = 9
+
+learning_rate = 0.0001
+cnn1, 42%, 12
+cnn7, 44%, 7
+cnn8, 42%, 7
+cnn9, 44%, 6
+cnn10, 44%, 5 -> most stable
+
+learning_rate = 0.00001
+cnn10,
+-------------------------------------------------------------
+7 -> 8 -> 9, training get slower as the input for first Linear() get bigger
+allocate memory also get bigger
