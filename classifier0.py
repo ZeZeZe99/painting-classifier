@@ -19,31 +19,13 @@ from cnn8 import CNN8
 from cnn9 import CNN9
 from cnn10 import CNN10
 
-# Plot results with matplotlib
-def plot ():
-    plt.figure(2)
-    plt.clf()
-    episode_rewards_plot = torch.tensor(episode_rewards, dtype=torch.float)
-    plt.title('Training...')
-    plt.xlabel('Epoch')
-    plt.ylabel('Rewards')
-    plt.plot(episode_rewards_plot.numpy())
-    plt.plot(average_rewards_plot.numpy())
-    plt.plot(mean_rewards_plot.numpy())
-    # Take x episode averages and plot them too
-    # if len(episode_rewards_plot) >= 100:
-    #     means = episode_rewards_plot.unfold(0, 100, 1).mean(1).view(-1)
-    #     means = torch.cat((torch.zeros(99), means))
-    #     plt.plot(means.numpy())
-    plt.pause(0.001)
-
 # Plot with tensorboard
 writer = SummaryWriter()
 
 # Hyper parameters
 learning_rate = 0.00001
 batch_size = 16
-epochs = 10
+epochs = 5
 
 # Define training function
 def train(dataloader, epoch):
@@ -52,6 +34,7 @@ def train(dataloader, epoch):
     size = len(dataloader.dataset)
 
     model.train()
+    loss = 0
 
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
@@ -59,9 +42,6 @@ def train(dataloader, epoch):
         # Compute prediction error
         pred = model(X)
         loss = loss_fn(pred, y)
-
-        # Plot with tensorboard
-        writer.add_scalar("Loss/train", loss, epoch)
 
         # Backpropagation
         optimizer.zero_grad()
@@ -72,6 +52,8 @@ def train(dataloader, epoch):
             loss, current = loss.item(), batch * len(X)
             now = round(time.time() - start)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
+
+    # Plot with tensorboard
     print("Training done!")
 
 # Define testing function
@@ -90,6 +72,7 @@ def test(dataloader, epoch):
 
     test_loss /= num_batches
     correct /= size
+    writer.add_scalar("Loss/train", test_loss, epoch)
     print(f"Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
 
@@ -98,7 +81,7 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = CNN10(output_dim=9).to(device)
+    model = CNN7(output_dim=9).to(device)
     # model = models.resnet18(pretrained=True).to(device)
     print(model)
 
@@ -134,9 +117,8 @@ if __name__ == '__main__':
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
         torch.cuda.empty_cache()
-        train(train_dataloader, epochs)
-        test(test_dataloader, epochs)
-        writer.flush()
+        train(train_dataloader, t)
+        test(test_dataloader, t)
         # Save model
         torch.save(model.state_dict(), "/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth")
         print("Saved PyTorch Model State to model.pth")
@@ -147,4 +129,5 @@ if __name__ == '__main__':
     print("Saved PyTorch Model State to model.pth")
 
     # Close writer
+    writer.flush()
     writer.close()
