@@ -34,7 +34,6 @@ def train(dataloader, epoch):
     size = len(dataloader.dataset)
 
     model.train()
-    loss = 0
 
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
@@ -54,14 +53,35 @@ def train(dataloader, epoch):
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
 
     # Plot with tensorboard
-    print("Training done!")
+    print(f"Epoch {epoch} training done!")
+
+# Define validation function
+def validate(dataloader, epoch):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    valid_loss, correct = 0, 0
+
+    model.eval()
+    with torch.no_grad():
+        for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
+            pred = model(X)
+
+            valid_loss += loss_fn(pred, y).item()
+            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+
+    avg_loss = valid_loss / num_batches
+    accuracy = correct / size
+    print(f"Accuracy: {(100 * accuracy):>0.1f}%, Avg loss: {avg_loss:>8f} \n")
+    print(f"Epoch {epoch} validation done!")
+
 
 # Define testing function
 def test(dataloader, epoch):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
-    test_loss, correct,= 0, 0
+    test_loss, correct = 0, 0
 
     with torch.no_grad():
         for X, y in dataloader:
@@ -70,10 +90,10 @@ def test(dataloader, epoch):
             test_loss += loss_fn(pred, y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
-    test_loss /= num_batches
-    correct /= size
+    avg_loss = test_loss / num_batches
+    accuracy = correct / size
     writer.add_scalar("Loss/train", test_loss, epoch)
-    print(f"Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"Accuracy: {(100 * accuracy):>0.1f}%, Avg loss: {avg_loss:>8f} \n")
 
 
 if __name__ == '__main__':
@@ -81,7 +101,7 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = CNN7(output_dim=9).to(device)
+    model = CNN0(output_dim=9).to(device)
     # model = models.resnet18(pretrained=True).to(device)
     print(model)
 
@@ -96,13 +116,15 @@ if __name__ == '__main__':
         # transforms.Resize(32) # if resnet50
     ])
 
+    # data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=300, set_index=1, transform=transform)
     data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=4, min_paint=300, set_index=1, transform=transform)
 
-    # Split into training set and testing set
-    train_size = round(data.__len__() * 0.8)
-    test_size = data.__len__() - train_size
-    train_data, test_data = random_split(data, [train_size, test_size])
-    print(len(train_data), len(test_data))
+    # Split into training set, validation set, and testing set
+    test_size = round(data.__len__() * 0.15)
+    validate_size = test_size
+    train_size = data.__len__() - 2 * test_size
+    train_data, validate_data, test_data = random_split(data, [train_size, validate_size, test_size])
+    print(len(train_data), len(validate_data), len(test_data))
 
     # Create dataset loaders
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -118,10 +140,12 @@ if __name__ == '__main__':
         print(f"Epoch {t + 1}\n-------------------------------")
         torch.cuda.empty_cache()
         train(train_dataloader, t)
-        test(test_dataloader, t)
+        validate(test_dataloader, t)
         # Save model
         torch.save(model.state_dict(), "/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth")
         print("Saved PyTorch Model State to model.pth")
+    print("Training and validation done! Testing start ------------------")
+    test(test_dataloader)
     print("Done!")
 
     # Save model
