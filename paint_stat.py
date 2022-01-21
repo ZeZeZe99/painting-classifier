@@ -9,19 +9,28 @@ import pandas as pd
 file_path = 'train_info.csv'
 file = pd.read_csv(file_path)
 
-style = file['style'].value_counts()
+# style = file['style'].value_counts()
 # for idx, item in style.items():
 #     print(idx, item)
 
 print("---------------------")
+name_start_with = '1'
+label_column = 1
+if label_column == 1:
+    label = 'artist'
+elif label_column == 3:
+    label = 'style'
+elif label_column == 4:
+    label = 'genre'
+selected = file[file.filename.str.startswith(name_start_with)]
 
-file_1 = file[file.filename.str.startswith('1')]
-style_1 = file_1['style'].value_counts()
-print(style_1.shape)
+selected_count = selected[label].value_counts()
+print(selected_count.shape)
+
 count = 0
 total_paint = 0
-for name, item in style.items():
-    if item >= 1000:
+for name, item in selected_count.items():
+    if item == 58:
         count += 1
         total_paint += item
         print(name, item)

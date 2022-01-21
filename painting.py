@@ -27,16 +27,21 @@ class Painting(Dataset):
     :param target_transform
     """
 
-    def __init__(self, annotation_file, img_dir, column=3, min_paint=None, max_paint=None, set_index=0,
+    def __init__(self, annotation_file, img_dir, column=3, min_paint=None, max_paint=None, name_start_with=None, set_index=None,
                  transform=None, target_transform=None):
         self.img_labels = pd.read_csv(annotation_file)
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
         self.column = column
+        self.name_start_with = name_start_with
 
         # for testing purpose: only need labels for 1 training set
-        if set_index != 0:
+
+        if name_start_with:
+            name = self.img_labels.apply(self.name_start, axis=1)
+            self.img_labels = self.img_labels[name]
+        if set_index:
             self.img_labels = self.img_labels[self.img_labels.filename.str.startswith(str(set_index))]
 
         # use style (column index 3) as label
@@ -139,3 +144,6 @@ class Painting(Dataset):
             return row['genre'] in Painting.selected_labels
         elif self.column == 1:
             return row['artist'] in Painting.selected_labels
+
+    def name_start(self, row):
+        return row['filename'][0] in self.name_start_with

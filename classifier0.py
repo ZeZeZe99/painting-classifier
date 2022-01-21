@@ -13,12 +13,13 @@ from cnn1 import CNN1
 from cnn2 import CNN2
 from cnn3 import CNN3
 from cnn4 import CNN4
+from cnn5 import CNN5
 import time
 
 """
 Define hyper-parameters
 """
-learning_rate = 0.001
+learning_rate = 0.0001
 batch_size = 16
 epochs = 100
 
@@ -38,9 +39,9 @@ def train(dataloader):
         loss = loss_fn(pred, y)
 
         # print("Input:   ", X)
-        print("Label:   ", y)
+        # print("Label:   ", y)
         # print("Output:  ", pred)
-        print("Predict: ", pred.argmax(1))
+        # print("Predict: ", pred.argmax(1))
         # print("l: ", loss)
 
         # Backpropagation
@@ -59,7 +60,7 @@ def test(dataloader):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
-    test_loss, correct = 0, 0
+    test_loss, correct, correctt, total = 0, 0, 0, 0
     plot = []
 
     with torch.no_grad():
@@ -67,23 +68,13 @@ def test(dataloader):
             X, y = X.to(device), y.to(device)
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
-            # if pred.argmax(1) == y:
-            print("pred: ", pred.argmax(1))
-            print("y: ", y)
-            # print(pred.argmax(1) == y)
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
     test_loss /= num_batches
     print(correct, size)
     correct /= size
+
     print(f"Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
-    # plot.append(100*correct)
-    # acc_plot = torch.tensor(plot, dtype=torch.float)
-    # plt.title('Training...')
-    # plt.xlabel('Episode')
-    # plt.ylabel('Accuracy')
-    # plt.plot(acc_plot.numpy())
-    # plt.pause(0.001)
 
 
 if __name__ == '__main__':
@@ -94,8 +85,11 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = CNN0(output_dim=3).to(device)
-    # model = models.resnet50(pretrained=True).to(device)
+    model = CNN1(output_dim=38).to(device)
+    # model = CNN5().to(device)
+    # model = models.resnet18(pretrained=True).to(device)
+    # num_ftrs = model.fc.in_features
+    # model.fc = nn.Linear(num_ftrs, 25).to(device)
     print(model)
     # exit()
 
@@ -103,6 +97,7 @@ if __name__ == '__main__':
     Define loss function and optimizer
     """
     loss_fn = nn.CrossEntropyLoss()
+    #optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     """
@@ -110,12 +105,12 @@ if __name__ == '__main__':
     """
     transform = transforms.Compose([
         transforms.ToTensor(),
-        # transforms.RandomCrop(224)
+        #transforms.Resize(32) # if resnet50
     ])
 
-    data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=1000, set_index=1,
-                    transform = transform)
-    # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, set_index=0, transform= train_transforms)
+    # data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=1000, set_index=1,
+    #                 transform = transform)
+    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=1, min_paint=300, set_index=0, transform= transform)
     # print(train_data.__len__())
 
     """
@@ -142,8 +137,11 @@ if __name__ == '__main__':
     """
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
+        torch.cuda.empty_cache()
         train(train_dataloader)
         test(test_dataloader)
+        torch.save(model.state_dict(), "model.pth")
+        print("Saved PyTorch Model State to model.pth")
     print("Done!")
 
     """

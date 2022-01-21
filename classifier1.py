@@ -118,7 +118,7 @@ if __name__ == '__main__':
                                           transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                                           ])
 
-    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1', min_paint=1000, max_paint=130000, set_index=1, transform=train_transforms)
+    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', min_paint=1000, max_paint=500000, set_index=1, transform=train_transforms)
 
     # Split
     train_size = round(data.__len__() * 0.8)
