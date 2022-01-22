@@ -15,3 +15,6 @@ cnn10,
 -------------------------------------------------------------
 7 -> 8 -> 9, training get slower as the input for first Linear() get bigger
 allocate memory also get bigger
+-------------------------------------------------------------
+znn2
+bb64, bb128 - learning_rate = 0.0005

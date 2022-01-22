@@ -53,10 +53,12 @@ class CNN7(nn.Module):
             nn.MaxPool2d(kernel_size=2),
 
             nn.Flatten(),
-            nn.Linear(128 * 256, 2048),
+            nn.Linear(16 * 16 * 128, 2048),
             nn.ReLU(),
+            nn.Dropout(0.5),
             nn.Linear(2048, 1584),
             nn.ReLU(),
+            nn.Dropout(0.5),
             nn.Linear(1584, output_dim)
         )
 

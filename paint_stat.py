@@ -24,13 +24,13 @@ elif label_column == 4:
     label = 'genre'
 selected = file[file.filename.str.startswith(name_start_with)]
 
-selected_count = selected[label].value_counts()
+selected_count = file[label].value_counts()
 print(selected_count.shape)
 
 count = 0
 total_paint = 0
 for name, item in selected_count.items():
-    if item == 58:
+    if item >= 390:
         count += 1
         total_paint += item
         print(name, item)
