@@ -1,9 +1,14 @@
 # Classifier
+import fastai
 import torch
 from torch import nn, optim
+from torch.utils.data._utils.collate import default_collate
 from torchvision import transforms, models
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
+from ignite.handlers import FastaiLRFinder
+from ignite.engine import create_supervised_trainer
+from ignite.metrics import Accuracy, Loss
 import matplotlib.pyplot as plt
 import time
 
@@ -15,11 +20,12 @@ from cnn7 import CNN7
 from cnn10 import CNN10
 from znn import ZNN
 from znn2 import ZNN2
+from znn4 import ZNN4
 
 # Hyper parameters
-learning_rate = 0.0008
-batch_size = 16
-epochs = 500
+learning_rate = 0.00008
+batch_size = 32
+epochs = 200
 
 
 # Define training function
@@ -103,13 +109,12 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = ZNN2(output_dim=9).to(device)
+    model = ZNN4(output_dim=9).to(device)
     # model = models.resnet18(pretrained=True).to(device)
     print(model)
 
     # Define loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
-    # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Load datasets
@@ -131,7 +136,9 @@ if __name__ == '__main__':
     train_data, validate_data, test_data = random_split(data, [train_size, validate_size, test_size])
     print(len(train_data), len(validate_data), len(test_data))
 
-    # Create dataset loaders
+    # lr_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, collate_fn = lambda x: tuple(x_.to(device) for x_ in default_collate(x)))
+
+    # Load data
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     validate_dataloader = DataLoader(validate_data, batch_size=batch_size, shuffle=False)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
@@ -140,6 +147,19 @@ if __name__ == '__main__':
         print("Shape of X [N, C, H, W]: ", X.shape, X.dtype)
         print("Shape of y: ", y.dtype, y.shape)
         break
+
+    # Find best learning rate
+    # lr_finder = FastaiLRFinder()
+    # to_save = {"model": model,
+    #            "optimizer": optimizer}
+    # trainer = create_supervised_trainer(model, optimizer, loss_fn)
+    # with lr_finder.attach(trainer,
+    #                       to_save=to_save,
+    #                       start_lr=0.000001,
+    #                       end_lr=1) as trainer_with_lr_finder: trainer_with_lr_finder.run(lr_dataloader)
+    # lr_finder.get_results()
+    # lr_finder.plot()
+    # lr_finder.lr_suggestion()
 
     # Plot with tensorboard
     writer = SummaryWriter()

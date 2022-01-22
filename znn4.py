@@ -3,7 +3,7 @@ from cnn_inception import InceptionModule
 from cnn_residual import make_layer
 from cnn_residual import BasicBlock
 
-class ZNN2(nn.Module):
+class ZNN4(nn.Module):
 
     def __init__(self, output_dim):
         super().__init__()
@@ -50,5 +50,5 @@ class ZNN2(nn.Module):
         return self.network(x)
 
 if __name__ == '__main__':
-    x = ZNN2(9)
+    x = ZNN4(9)
     print(x)
