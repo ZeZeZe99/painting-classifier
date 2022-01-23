@@ -1,0 +1,237 @@
+Index: cnn2.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\nThis class is a CNN model\n\"\"\"\nfrom torch import nn\n\n\nclass CNN2(nn.Module):\n\n    def __init__(self, output_dim):\n        super().__init__()\n        self.network = nn.Sequential(\n            # original: 256x256x3\n\n            # output: 256x256x16\n            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 256x256x16\n            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            # output: 128x128x16\n            nn.MaxPool2d(kernel_size=2),\n            # output: 128x128x32\n            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 128x128x32\n            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 128x128x32\n            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            # output: 64x64x32\n            nn.MaxPool2d(kernel_size=2),\n            # output: 64x64x64\n            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 64x64x64\n            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 64x64x64\n            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            # output: 32x32x64\n            nn.MaxPool2d(kernel_size=2),\n            # output: 32x32x128\n            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 32x32x128\n            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 32x32x128\n            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            # output: 16x16x256\n            nn.MaxPool2d(kernel_size=2),\n            # output: 16x16x256\n            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 16x16x256\n            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # output: 16x16x256\n            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            # output: 8x8x256\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Flatten(),\n            nn.Linear(8*8*256, 2048),\n            nn.ReLU(),\n            nn.Linear(2048, 1584),\n            nn.ReLU(),\n            nn.Linear(1584, output_dim)\n        )\n\n    def forward(self, x):\n        return self.network(x)
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cnn2.py b/cnn2.py
+--- a/cnn2.py	(revision a38cf7bfb565ebe6cf17b6bd0647ab9099d2c83d)
++++ b/cnn2.py	(date 1642800284143)
+@@ -70,7 +70,7 @@
+             nn.MaxPool2d(kernel_size=2),
+ 
+             nn.Flatten(),
+-            nn.Linear(8*8*256, 2048),
++            nn.Linear(8 * 8 * 256, 2048),
+             nn.ReLU(),
+             nn.Linear(2048, 1584),
+             nn.ReLU(),
+@@ -78,4 +78,4 @@
+         )
+ 
+     def forward(self, x):
+-        return self.network(x)
+\ No newline at end of file
++        return self.network(x)
+Index: classifier0.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Classifier\nimport torch\nfrom torch import nn, optim\nfrom torchvision import transforms, models\nfrom torch.utils.data import DataLoader, random_split\nfrom torch.utils.tensorboard import SummaryWriter\nimport matplotlib.pyplot as plt\nimport time\n\nfrom painting import Painting\nfrom cnn0 import CNN0\nfrom cnn1 import CNN1\nfrom cnn2 import CNN2\nfrom cnn3 import CNN3\nfrom cnn4 import CNN4\nfrom cnn5 import CNN5\nfrom cnn7 import CNN7\nfrom cnn8 import CNN8\nfrom cnn9 import CNN9\nfrom cnn10 import CNN10\n\n# Plot with tensorboard\nwriter = SummaryWriter()\n\n# Hyper parameters\nlearning_rate = 0.00001\nbatch_size = 16\nepochs = 5\n\n# Define training function\ndef train(dataloader, epoch):\n    # Initialize\n    start = time.time()\n    size = len(dataloader.dataset)\n\n    model.train()\n\n    for batch, (X, y) in enumerate(dataloader):\n        X, y = X.to(device), y.to(device)\n\n        # Compute prediction error\n        pred = model(X)\n        loss = loss_fn(pred, y)\n\n        # Backpropagation\n        optimizer.zero_grad()\n        loss.backward()\n        optimizer.step()\n\n        if batch % 50 == 0:\n            loss, current = loss.item(), batch * len(X)\n            now = round(time.time() - start)\n            print(f\"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}\")\n\n    # Plot with tensorboard\n    print(f\"Epoch {epoch} training done!\")\n\n# Define validation function\ndef validate(dataloader, epoch):\n    size = len(dataloader.dataset)\n    num_batches = len(dataloader)\n    valid_loss, correct = 0, 0\n\n    model.eval()\n    with torch.no_grad():\n        for X, y in dataloader:\n            X, y = X.to(device), y.to(device)\n            pred = model(X)\n\n            valid_loss += loss_fn(pred, y).item()\n            correct += (pred.argmax(1) == y).type(torch.float).sum().item()\n\n    avg_loss = valid_loss / num_batches\n    accuracy = correct / size\n    print(f\"Accuracy: {(100 * accuracy):>0.1f}%, Avg loss: {avg_loss:>8f} \\n\")\n    print(f\"Epoch {epoch} validation done!\")\n\n\n# Define testing function\ndef test(dataloader, epoch):\n    size = len(dataloader.dataset)\n    num_batches = len(dataloader)\n    model.eval()\n    test_loss, correct = 0, 0\n\n    with torch.no_grad():\n        for X, y in dataloader:\n            X, y = X.to(device), y.to(device)\n            pred = model(X)\n            test_loss += loss_fn(pred, y).item()\n            correct += (pred.argmax(1) == y).type(torch.float).sum().item()\n\n    avg_loss = test_loss / num_batches\n    accuracy = correct / size\n    writer.add_scalar(\"Loss/train\", test_loss, epoch)\n    print(f\"Accuracy: {(100 * accuracy):>0.1f}%, Avg loss: {avg_loss:>8f} \\n\")\n\n\nif __name__ == '__main__':\n    # Get cpu or gpu device for training.\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    print(f\"Using {device} device\")\n\n    model = CNN0(output_dim=9).to(device)\n    # model = models.resnet18(pretrained=True).to(device)\n    print(model)\n\n    # Define loss function and optimizer\n    loss_fn = nn.CrossEntropyLoss()\n    # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)\n    optimizer = optim.Adam(model.parameters(), lr=learning_rate)\n\n    # Load datasets\n    transform = transforms.Compose([\n        transforms.ToTensor(),\n        # transforms.Resize(32) # if resnet50\n    ])\n\n    # data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=300, set_index=1, transform=transform)\n    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=4, min_paint=300, set_index=1, transform=transform)\n\n    # Split into training set, validation set, and testing set\n    test_size = round(data.__len__() * 0.15)\n    validate_size = test_size\n    train_size = data.__len__() - 2 * test_size\n    train_data, validate_data, test_data = random_split(data, [train_size, validate_size, test_size])\n    print(len(train_data), len(validate_data), len(test_data))\n\n    # Create dataset loaders\n    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)\n    test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)\n\n    for X, y in train_dataloader:\n        print(\"Shape of X [N, C, H, W]: \", X.shape, X.dtype)\n        print(\"Shape of y: \", y.dtype, y.shape)\n        break\n\n    # Train and test\n    for t in range(epochs):\n        print(f\"Epoch {t + 1}\\n-------------------------------\")\n        torch.cuda.empty_cache()\n        train(train_dataloader, t)\n        validate(test_dataloader, t)\n        # Save model\n        torch.save(model.state_dict(), \"/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth\")\n        print(\"Saved PyTorch Model State to model.pth\")\n    print(\"Training and validation done! Testing start ------------------\")\n    test(test_dataloader)\n    print(\"Done!\")\n\n    # Save model\n    torch.save(model.state_dict(), \"/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth\")\n    print(\"Saved PyTorch Model State to model.pth\")\n\n    # Close writer\n    writer.flush()\n    writer.close()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/classifier0.py b/classifier0.py
+--- a/classifier0.py	(revision a38cf7bfb565ebe6cf17b6bd0647ab9099d2c83d)
++++ b/classifier0.py	(date 1642804346981)
+@@ -23,9 +23,10 @@
+ writer = SummaryWriter()
+ 
+ # Hyper parameters
+-learning_rate = 0.00001
++learning_rate = 0.0005
+ batch_size = 16
+-epochs = 5
++epochs = 100
++
+ 
+ # Define training function
+ def train(dataloader, epoch):
+@@ -34,6 +35,7 @@
+     size = len(dataloader.dataset)
+ 
+     model.train()
++    loss = 0
+ 
+     for batch, (X, y) in enumerate(dataloader):
+         X, y = X.to(device), y.to(device)
+@@ -42,6 +44,9 @@
+         pred = model(X)
+         loss = loss_fn(pred, y)
+ 
++        # Plot to tenserboard
++        writer.add_scalar("train/loss", loss, batch + len(dataloader) * epoch)
++
+         # Backpropagation
+         optimizer.zero_grad()
+         loss.backward()
+@@ -52,8 +57,8 @@
+             now = round(time.time() - start)
+             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
+ 
+-    # Plot with tensorboard
+-    print(f"Epoch {epoch} training done!")
++    print(f"Epoch {epoch + 1} training done!\n")
++
+ 
+ # Define validation function
+ def validate(dataloader, epoch):
+@@ -72,8 +77,12 @@
+ 
+     avg_loss = valid_loss / num_batches
+     accuracy = correct / size
+-    print(f"Accuracy: {(100 * accuracy):>0.1f}%, Avg loss: {avg_loss:>8f} \n")
+-    print(f"Epoch {epoch} validation done!")
++    print(f"Valid accuracy: {(100 * accuracy):>0.1f}%, Valid avg loss: {avg_loss:>8f}")
++    print(f"Epoch {epoch + 1} validation done!\n")
++
++    # Plot with tensorboard
++    writer.add_scalar("valid/loss", avg_loss, epoch)
++    writer.add_scalar("valid/accuracy", 100 * accuracy, epoch)
+ 
+ 
+ # Define testing function
+@@ -92,8 +101,11 @@
+ 
+     avg_loss = test_loss / num_batches
+     accuracy = correct / size
+-    writer.add_scalar("Loss/train", test_loss, epoch)
+-    print(f"Accuracy: {(100 * accuracy):>0.1f}%, Avg loss: {avg_loss:>8f} \n")
++    print(f"Test accuracy: {(100 * accuracy):>0.1f}%, Test avg loss: {avg_loss:>8f} \n")
++
++    # Plot with tensorboard
++    writer.add_scalar("test/loss", test_loss, epoch)
++    writer.add_scalar("test/accuracy", 100 * correct, epoch)
+ 
+ 
+ if __name__ == '__main__':
+@@ -101,23 +113,25 @@
+     device = "cuda" if torch.cuda.is_available() else "cpu"
+     print(f"Using {device} device")
+ 
+-    model = CNN0(output_dim=9).to(device)
+-    # model = models.resnet18(pretrained=True).to(device)
++    model = CNN7(output_dim=9).to(device)
++    # model = models.resnet18(pretrained=False).to(device)
+     print(model)
+ 
+     # Define loss function and optimizer
+     loss_fn = nn.CrossEntropyLoss()
+     # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
++    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.001)
+ 
+     # Load datasets
+     transform = transforms.Compose([
+         transforms.ToTensor(),
+-        # transforms.Resize(32) # if resnet50
++        # transforms.RandomRotation(25),
++        # transforms.Resize(224) # if resnet
+     ])
+ 
+     # data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=300, set_index=1, transform=transform)
+-    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=4, min_paint=300, set_index=1, transform=transform)
++    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=4, min_paint=300,
++                    set_index=1, transform=transform)
+ 
+     # Split into training set, validation set, and testing set
+     test_size = round(data.__len__() * 0.15)
+Index: cnn7.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from torch import nn\n\n\n# Simplified CNN2\nclass CNN7(nn.Module):\n\n    def __init__(self, output_dim):\n        super().__init__()\n        self.network = nn.Sequential(\n            # original: 256x256x3\n\n            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            # nn.MaxPool2d(kernel_size=2),\n\n            # nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Flatten(),\n            nn.Linear(128 * 256, 2048),\n            nn.ReLU(),\n            nn.Linear(2048, 1584),\n            nn.ReLU(),\n            nn.Linear(1584, output_dim)\n        )\n\n    def forward(self, x):\n        return self.network(x)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cnn7.py b/cnn7.py
+--- a/cnn7.py	(revision a38cf7bfb565ebe6cf17b6bd0647ab9099d2c83d)
++++ b/cnn7.py	(date 1642804347009)
+@@ -53,10 +53,12 @@
+             nn.MaxPool2d(kernel_size=2),
+ 
+             nn.Flatten(),
+-            nn.Linear(128 * 256, 2048),
++            nn.Linear(16 * 16 * 128, 2048),
+             nn.ReLU(),
++            nn.Dropout(0.5),
+             nn.Linear(2048, 1584),
+             nn.ReLU(),
++            nn.Dropout(0.5),
+             nn.Linear(1584, output_dim)
+         )
+ 
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.8\" project-jdk-type=\"Python SDK\" />\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision a38cf7bfb565ebe6cf17b6bd0647ab9099d2c83d)
++++ b/.idea/misc.xml	(date 1642799685577)
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9 (deeprl)" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/painting-classifier.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<module type=\"PYTHON_MODULE\" version=\"4\">\n  <component name=\"NewModuleRootManager\">\n    <content url=\"file://$MODULE_DIR$\" />\n    <orderEntry type=\"inheritedJdk\" />\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\n  </component>\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/painting-classifier.iml b/.idea/painting-classifier.iml
+--- a/.idea/painting-classifier.iml	(revision a38cf7bfb565ebe6cf17b6bd0647ab9099d2c83d)
++++ b/.idea/painting-classifier.iml	(date 1642799685685)
+@@ -2,7 +2,7 @@
+ <module type="PYTHON_MODULE" version="4">
+   <component name="NewModuleRootManager">
+     <content url="file://$MODULE_DIR$" />
+-    <orderEntry type="inheritedJdk" />
++    <orderEntry type="jdk" jdkName="Python 3.9 (deeprl)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+ </module>
+\ No newline at end of file
+Index: cnn8.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from torch import nn\n\n\n# Simplified CNN2\nclass CNN8(nn.Module):\n\n    def __init__(self, output_dim):\n        super().__init__()\n        self.network = nn.Sequential(\n            # original: 256x256x3\n\n            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            # nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            # nn.MaxPool2d(kernel_size=2),\n\n            # nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            # nn.MaxPool2d(kernel_size=2),\n\n            nn.Flatten(),\n            nn.Linear(256 * 256, 2048),\n            nn.ReLU(),\n            nn.Linear(2048, 1584),\n            nn.ReLU(),\n            nn.Linear(1584, output_dim)\n        )\n\n    def forward(self, x):\n        return self.network(x)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cnn8.py b/cnn8.py
+--- a/cnn8.py	(revision a38cf7bfb565ebe6cf17b6bd0647ab9099d2c83d)
++++ b/cnn8.py	(date 1642800284135)
+@@ -53,7 +53,7 @@
+             # nn.MaxPool2d(kernel_size=2),
+ 
+             nn.Flatten(),
+-            nn.Linear(256 * 256, 2048),
++            nn.Linear(32 * 32 * 64, 2048),
+             nn.ReLU(),
+             nn.Linear(2048, 1584),
+             nn.ReLU(),
+Index: cnn9.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from torch import nn\n\n\n# Simplified CNN2\nclass CNN9(nn.Module):\n\n    def __init__(self, output_dim):\n        super().__init__()\n        self.network = nn.Sequential(\n            # original: 256x256x3\n\n            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            nn.ReLU(),\n            # nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            nn.MaxPool2d(kernel_size=2),\n\n            # nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            # nn.MaxPool2d(kernel_size=2),\n\n            # nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            # nn.MaxPool2d(kernel_size=2),\n\n            # nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n            # nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),\n            # nn.ReLU(),\n\n            # nn.MaxPool2d(kernel_size=2),\n\n            nn.Flatten(),\n            nn.Linear(512 * 256, 2048),\n            nn.ReLU(),\n            nn.Linear(2048, 1584),\n            nn.ReLU(),\n            nn.Linear(1584, output_dim)\n        )\n\n    def forward(self, x):\n        return self.network(x)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cnn9.py b/cnn9.py
+--- a/cnn9.py	(revision a38cf7bfb565ebe6cf17b6bd0647ab9099d2c83d)
++++ b/cnn9.py	(date 1642800332765)
+@@ -53,7 +53,7 @@
+             # nn.MaxPool2d(kernel_size=2),
+ 
+             nn.Flatten(),
+-            nn.Linear(512 * 256, 2048),
++            nn.Linear(64 * 64 * 32, 2048),
+             nn.ReLU(),
+             nn.Linear(2048, 1584),
+             nn.ReLU(),

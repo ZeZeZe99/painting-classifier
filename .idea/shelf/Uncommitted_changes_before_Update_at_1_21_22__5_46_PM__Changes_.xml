@@ -1,0 +1,29 @@
+<changelist name="Uncommitted_changes_before_Update_at_1_21_22,_5_46_PM_[Changes]" date="1642805195575" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_5_46_PM_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 1/21/22, 5:46 PM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="runs/res/events.out.tfevents.1642803611.sandy.63185.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_5_46_PM_[Changes]/events.out.tfevents.1642803611.sandy.63185.0" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="runs/cnn7_5e-4_b16_genre9/events.out.tfevents.1642801223.sandy.53313.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_5_46_PM_[Changes]/events.out.tfevents.1642801223.sandy.53313.0" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="runs/cnn7_5e-4_b16_genre9_rotate/events.out.tfevents.1642802606.sandy.59310.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_5_46_PM_[Changes]/events.out.tfevents.1642802606.sandy.59310.0" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="runs/Jan21_17-32-32_sandy/events.out.tfevents.1642804352.sandy.65281.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_5_46_PM_[Changes]/events.out.tfevents.1642804352.sandy.65281.0" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="runs/cnn7_5e-4_b32_genre9/events.out.tfevents.1642802016.sandy.57367.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_5_46_PM_[Changes]/events.out.tfevents.1642802016.sandy.57367.0" />
+  </binary>
+</changelist>

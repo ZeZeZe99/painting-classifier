@@ -1,0 +1,9 @@
+<changelist name="Uncommitted_changes_before_Update_at_1_23_22,_1_16_AM_[Changes]" date="1642918576576" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_23_22,_1_16_AM_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 1/23/22, 1:16 AM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="runs/Jan23_00-03-43_sandy/events.out.tfevents.1642914223.sandy.79949.0" />
+    <option name="AFTER_PATH" value="runs/Jan23_00-03-43_sandy/events.out.tfevents.1642914223.sandy.79949.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_23_22,_1_16_AM_[Changes]/events.out.tfevents.1642914223.sandy.79949.0" />
+  </binary>
+</changelist>

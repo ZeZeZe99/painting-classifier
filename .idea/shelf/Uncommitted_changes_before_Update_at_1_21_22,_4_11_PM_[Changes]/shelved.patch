@@ -1,0 +1,90 @@
+Index: classifier0.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Classifier\nimport torch\nfrom torch import nn, optim\nfrom torchvision import transforms, models\nfrom torch.utils.data import DataLoader, random_split\nfrom torch.utils.tensorboard import SummaryWriter\nimport matplotlib.pyplot as plt\nimport time\n\nfrom painting import Painting\nfrom cnn0 import CNN0\nfrom cnn1 import CNN1\nfrom cnn2 import CNN2\nfrom cnn3 import CNN3\nfrom cnn4 import CNN4\nfrom cnn5 import CNN5\nfrom cnn7 import CNN7\nfrom cnn8 import CNN8\nfrom cnn9 import CNN9\nfrom cnn10 import CNN10\n\n# Plot with tensorboard\nwriter = SummaryWriter()\n\n# Hyper parameters\nlearning_rate = 0.00001\nbatch_size = 16\nepochs = 5\n\n# Define training function\ndef train(dataloader, epoch):\n    # Initialize\n    start = time.time()\n    size = len(dataloader.dataset)\n\n    model.train()\n    loss = 0\n\n    for batch, (X, y) in enumerate(dataloader):\n        X, y = X.to(device), y.to(device)\n\n        # Compute prediction error\n        pred = model(X)\n        loss = loss_fn(pred, y)\n\n        # Backpropagation\n        optimizer.zero_grad()\n        loss.backward()\n        optimizer.step()\n\n        if batch % 50 == 0:\n            loss, current = loss.item(), batch * len(X)\n            now = round(time.time() - start)\n            print(f\"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}\")\n\n    # Plot with tensorboard\n    print(\"Training done!\")\n\n# Define testing function\ndef test(dataloader, epoch):\n    size = len(dataloader.dataset)\n    num_batches = len(dataloader)\n    model.eval()\n    test_loss, correct,= 0, 0\n\n    with torch.no_grad():\n        for X, y in dataloader:\n            X, y = X.to(device), y.to(device)\n            pred = model(X)\n            test_loss += loss_fn(pred, y).item()\n            correct += (pred.argmax(1) == y).type(torch.float).sum().item()\n\n    test_loss /= num_batches\n    correct /= size\n    writer.add_scalar(\"Loss/train\", test_loss, epoch)\n    print(f\"Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \\n\")\n\n\nif __name__ == '__main__':\n    # Get cpu or gpu device for training.\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    print(f\"Using {device} device\")\n\n    model = CNN7(output_dim=9).to(device)\n    # model = models.resnet18(pretrained=True).to(device)\n    print(model)\n\n    # Define loss function and optimizer\n    loss_fn = nn.CrossEntropyLoss()\n    # optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)\n    optimizer = optim.Adam(model.parameters(), lr=learning_rate)\n\n    # Load datasets\n    transform = transforms.Compose([\n        transforms.ToTensor(),\n        # transforms.Resize(32) # if resnet50\n    ])\n\n    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=4, min_paint=300, set_index=1, transform=transform)\n\n    # Split into training set and testing set\n    train_size = round(data.__len__() * 0.8)\n    test_size = data.__len__() - train_size\n    train_data, test_data = random_split(data, [train_size, test_size])\n    print(len(train_data), len(test_data))\n\n    # Create dataset loaders\n    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)\n    test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)\n\n    for X, y in train_dataloader:\n        print(\"Shape of X [N, C, H, W]: \", X.shape, X.dtype)\n        print(\"Shape of y: \", y.dtype, y.shape)\n        break\n\n    # Train and test\n    for t in range(epochs):\n        print(f\"Epoch {t + 1}\\n-------------------------------\")\n        torch.cuda.empty_cache()\n        train(train_dataloader, t)\n        test(test_dataloader, t)\n        # Save model\n        torch.save(model.state_dict(), \"/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth\")\n        print(\"Saved PyTorch Model State to model.pth\")\n    print(\"Done!\")\n\n    # Save model\n    torch.save(model.state_dict(), \"/mnt/OASYS/WildfireShinyTest/CSCI364/model.pth\")\n    print(\"Saved PyTorch Model State to model.pth\")\n\n    # Close writer\n    writer.flush()\n    writer.close()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/classifier0.py b/classifier0.py
+--- a/classifier0.py	(revision ee519d3822764af1b7353dc945b7a29f1f761077)
++++ b/classifier0.py	(date 1642799041560)
+@@ -23,9 +23,9 @@
+ writer = SummaryWriter()
+ 
+ # Hyper parameters
+-learning_rate = 0.00001
++learning_rate = 0.001
+ batch_size = 16
+-epochs = 5
++epochs = 100
+ 
+ # Define training function
+ def train(dataloader, epoch):
+@@ -43,6 +43,9 @@
+         pred = model(X)
+         loss = loss_fn(pred, y)
+ 
++        # Plot to tenserboard
++        writer.add_scalar("train/loss", loss, batch + len(dataloader) * epoch)
++
+         # Backpropagation
+         optimizer.zero_grad()
+         loss.backward()
+@@ -53,7 +56,6 @@
+             now = round(time.time() - start)
+             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]  time: {now}")
+ 
+-    # Plot with tensorboard
+     print("Training done!")
+ 
+ # Define testing function
+@@ -72,9 +74,11 @@
+ 
+     test_loss /= num_batches
+     correct /= size
+-    writer.add_scalar("Loss/train", test_loss, epoch)
+     print(f"Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+ 
++    # Plot with tensorboard
++    writer.add_scalar("test/loss", test_loss, epoch)
++    writer.add_scalar("test/accuracy", 100 * correct, epoch)
+ 
+ if __name__ == '__main__':
+     # Get cpu or gpu device for training.
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.8\" project-jdk-type=\"Python SDK\" />\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision ee519d3822764af1b7353dc945b7a29f1f761077)
++++ b/.idea/misc.xml	(date 1642734706478)
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9 (deeprl)" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/painting-classifier.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<module type=\"PYTHON_MODULE\" version=\"4\">\n  <component name=\"NewModuleRootManager\">\n    <content url=\"file://$MODULE_DIR$\" />\n    <orderEntry type=\"inheritedJdk\" />\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\n  </component>\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/painting-classifier.iml b/.idea/painting-classifier.iml
+--- a/.idea/painting-classifier.iml	(revision ee519d3822764af1b7353dc945b7a29f1f761077)
++++ b/.idea/painting-classifier.iml	(date 1642787950059)
+@@ -2,7 +2,7 @@
+ <module type="PYTHON_MODULE" version="4">
+   <component name="NewModuleRootManager">
+     <content url="file://$MODULE_DIR$" />
+-    <orderEntry type="inheritedJdk" />
++    <orderEntry type="jdk" jdkName="Python 3.9 (deeprl)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+ </module>
+\ No newline at end of file

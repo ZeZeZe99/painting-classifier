@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Update_at_1_21_22,_4_11_PM_[Changes]" date="1642799685763" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_4_11_PM_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 1/21/22, 4:11 PM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="runs/cnn10_1e-3_genre_9/events.out.tfevents.1642799059.sandy.46735.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_4_11_PM_[Changes]/events.out.tfevents.1642799059.sandy.46735.0" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="runs/cnn10_5e-5_genre_9/events.out.tfevents.1642798643.sandy.45527.0" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_21_22,_4_11_PM_[Changes]/events.out.tfevents.1642798643.sandy.45527.0" />
+  </binary>
+</changelist>
