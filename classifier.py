@@ -7,20 +7,11 @@ from torchvision import transforms, models
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 from ignite.handlers import FastaiLRFinder
-from ignite.engine import create_supervised_trainer
-from ignite.metrics import Accuracy, Loss
-import matplotlib.pyplot as plt
 import time
 
 from painting import Painting
-from cnn0 import CNN0
-from cnn1 import CNN1
-from cnn2 import CNN2
-from cnn7 import CNN7
-from cnn10 import CNN10
-from znn import ZNN
-from znn2 import ZNN2
-from znn4 import ZNN4
+
+from ZBNet import ZBNet
 
 # Hyper parameters
 learning_rate = 5e-6
@@ -109,7 +100,7 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = ZNN2(output_dim=9).to(device)
+    model = ZBNet(output_dim=9).to(device)
     # model = models.resnet18(pretrained=False).to(device)
     # inftr = model.fc.in_features
     # outftr = 9
