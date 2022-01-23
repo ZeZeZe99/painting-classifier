@@ -23,8 +23,8 @@ from znn2 import ZNN2
 from znn4 import ZNN4
 
 # Hyper parameters
-learning_rate = 0.00008
-batch_size = 32
+learning_rate = 5e-6
+batch_size = 16
 epochs = 200
 
 
@@ -109,8 +109,11 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    model = ZNN4(output_dim=9).to(device)
-    # model = models.resnet18(pretrained=True).to(device)
+    model = ZNN2(output_dim=9).to(device)
+    # model = models.resnet18(pretrained=False).to(device)
+    # inftr = model.fc.in_features
+    # outftr = 9
+    # model.fc = nn.Linear(inftr, outftr, bias=True).to(device)
     print(model)
 
     # Define loss function and optimizer
@@ -124,10 +127,24 @@ if __name__ == '__main__':
         # transforms.Resize(224) # if resnet
     ])
 
-    # data = Painting('train_info.csv', 'preprocessed_1', column=4, min_paint=300, set_index=1, transform=transform)
-    # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=4, min_paint=300,
-    #                 set_index=1, transform=transform)
-    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed', column=1, min_paint=390, set_index=0, transform=transform)
+    # genre
+    # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed_1',
+    #                 column=4,
+    #                 min_paint=300,
+    #                 set_index=1,
+    #                 transform=transform)
+
+    # style
+    data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed',
+                    column=3,
+                    min_paint=336,
+                    max_paint=488,
+                    #name_start_with=['1', '2'],
+                    transform=transform)
+
+    # artist
+    # data = Painting('train_info.csv', '/mnt/OASYS/WildfireShinyTest/CSCI364/preprocessed',
+    # column=1, min_paint=390, set_index=0, transform=transform)
 
     # Split into training set, validation set, and testing set
     test_size = round(data.__len__() * 0.15)
@@ -155,7 +172,7 @@ if __name__ == '__main__':
     # trainer = create_supervised_trainer(model, optimizer, loss_fn)
     # with lr_finder.attach(trainer,
     #                       to_save=to_save,
-    #                       start_lr=0.000001,
+    #                       start_lr=0.0001,
     #                       end_lr=1) as trainer_with_lr_finder: trainer_with_lr_finder.run(lr_dataloader)
     # lr_finder.get_results()
     # lr_finder.plot()

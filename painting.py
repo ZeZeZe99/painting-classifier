@@ -35,6 +35,8 @@ class Painting(Dataset):
         self.target_transform = target_transform
         self.column = column
         self.name_start_with = name_start_with
+        self.min_paint = min_paint
+        self.max_paint = max_paint
 
         # for testing purpose: only need labels for 1 training set
 
@@ -49,13 +51,16 @@ class Painting(Dataset):
             if len(Painting.selected_labels) == 0:
                 # select styles that have specific amount of paintings, store it as a list
                 style_count = self.img_labels['style'].value_counts()
+
                 if min_paint:
                     style_count = style_count[lambda x: x >= min_paint]
                 if max_paint:
                     style_count = style_count[lambda y: y <= max_paint]
+
                 for name, item in style_count.items():
                     Painting.selected_labels.append(name)
                 print(f"Styles selected: {len(Painting.selected_labels)}")
+                print(f"Styles selected: {Painting.selected_labels}")
 
         # use genre (column index 4) as label
         elif column == 4:
@@ -69,7 +74,8 @@ class Painting(Dataset):
                 for name, item in genre_count.items():
                     Painting.selected_labels.append(name)
                 # print(Painting.style)
-                print(f"Styles selected: {len(Painting.selected_labels)}")
+                print(f"Genres selected: {len(Painting.selected_labels)}")
+                print(f"Genres selected: {Painting.selected_labels}")
 
         # use artist (column index 1) as label
         elif column == 1:
@@ -82,7 +88,8 @@ class Painting(Dataset):
                     artist_count = artist_count[lambda y: y <= max_paint]
                 for name, item in artist_count.items():
                     Painting.selected_labels.append(name)
-                print(f"Styles selected: {len(Painting.selected_labels)}")
+                print(f"Artists selected: {len(Painting.selected_labels)}")
+                print(f"Artists selected: {Painting.selected_labels}")
 
 
         # check if the label (style/genre/artist) of the painting is selected
